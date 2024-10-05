@@ -61,7 +61,61 @@ func Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func Refresh(w http.ResponseWriter, r *http.Request) {
+	cokkie, err := r.Cookie("token")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	tokenString := cokkie.Value
+	claims := &utils.Claims{}
+	tkn, err := jwt.ParseWithClaims(tokenString, claims,
+		func(t *jwt.Token) (interface{}, error) {
+			return jwtKey, nil
+		})
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if !tkn.Valid {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	// if time.Unix(claims.ExpiresAt, 0).Sub(time.Now()) > 30*time.Second {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	return
+	// }
+	// fmt.Println("Reached here")
+	expirationTime4Token := time.Now().Add(time.Minute * 5)
+	claims.ExpiresAt = expirationTime4Token.Unix()
+	// claimss := utils.Claims{
+	// 	Username: user.Username,
+	// 	StandardClaims: jwt.StandardClaims{
+	// 		Audience:  "",
+	// 		ExpiresAt: expirationTime4Token.Unix(),
+	// 	},
+	// }
+	newtoken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err = newtoken.SignedString(jwtKey)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(tokenString)
+	http.SetCookie(w, &http.Cookie{
+		Name:  "token",
+		Value: tokenString,
 
+		Expires: expirationTime4Token,
+	})
 }
 
 func Home(w http.ResponseWriter, r *http.Request) {
