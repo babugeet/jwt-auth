@@ -6,11 +6,11 @@ import (
 
 var Users = []models.User{
 	{
-		UserName: "babugeet",
+		Username: "babugeet",
 		Password: "123",
 	},
 	{
-		UserName: "abhinandh",
+		Username: "abhinandh",
 		Password: "234",
 	},
 }
