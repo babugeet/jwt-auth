@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"jwt-auth/mocks"
 	"jwt-auth/models"
 	"jwt-auth/utils"
 	"net/http"
@@ -51,10 +52,11 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Println(tokenString)
 		http.SetCookie(w, &http.Cookie{
-			Name:  "token",
-			Value: tokenString,
-
-			Expires: expirationTime4Token,
+			Name:     "token",
+			Value:    tokenString,
+			Path:     "/",
+			Expires:  expirationTime4Token,
+			SameSite: http.SameSiteNoneMode,
 		})
 	}
 
@@ -116,6 +118,64 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 
 		Expires: expirationTime4Token,
 	})
+}
+
+func Signup(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("reached signup")
+	var user models.User
+	// fmt.Println(r.Body.Read()
+	err := json.NewDecoder(r.Body).Decode(&user)
+	fmt.Println(err)
+	fmt.Println("User is ", user)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	fmt.Println(user.Password, user.Username)
+	fmt.Println(utils.Struct2Map())
+	_, ok := utils.Struct2Map()[user.Username]
+	if ok {
+		w.WriteHeader(http.StatusConflict)
+		w.Write([]byte("User already exists, pls login"))
+	} else {
+		mocks.Users = append(mocks.Users, user)
+		w.Write([]byte("User Profile created successfully"))
+	}
+
+}
+
+func CheckAuth(w http.ResponseWriter, r *http.Request) {
+	cokkie, err := r.Cookie("token")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	tokenString := cokkie.Value
+	claims := &utils.Claims{}
+	tkn, err := jwt.ParseWithClaims(tokenString, claims,
+		func(t *jwt.Token) (interface{}, error) {
+			return jwtKey, nil
+		})
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if !tkn.Valid {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	w.Write([]byte(fmt.Sprintf("Hello, %s", claims.Username)))
 }
 
 func Home(w http.ResponseWriter, r *http.Request) {

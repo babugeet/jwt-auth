@@ -13,4 +13,8 @@ var Users = []models.User{
 		Username: "abhinandh",
 		Password: "234",
 	},
+	{
+		Username: "w",
+		Password: "1",
+	},
 }
