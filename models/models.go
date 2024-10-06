@@ -19,7 +19,7 @@ type FoodChart struct {
 }
 
 type Database interface {
-	GetUser(userId string) string
-	PutUser()
+	GetUser(username string) (bool, error)
+	AddUser(user User) error
 	// UpdateUser()
 }

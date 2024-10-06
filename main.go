@@ -21,6 +21,7 @@ import (
 	"log"
 	"net/http"
 
+	"jwt-auth/db"
 	"jwt-auth/handler" // Replace with your actual module name
 
 	"github.com/rs/cors"
@@ -28,6 +29,7 @@ import (
 
 func main() {
 	mux := http.NewServeMux()
+	_ = db.NewMySQLdb()
 
 	// Define your route handlers
 	mux.HandleFunc("/login", handler.Login)
@@ -38,10 +40,10 @@ func main() {
 
 	// Set up CORS
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:8081"}, // Replace with your Flutter app's URL
+		AllowedOrigins:   []string{"http://localhost:8080/*", "http://localhost:8081/*", "http://localhost:8080/", "http://localhost:8081"}, // Replace with your Flutter app's URL
 		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
-		AllowedHeaders:   []string{"*"},
-		ExposedHeaders:   []string{"*"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		ExposedHeaders:   []string{"Set-Cookie", "Content-Length", "Date"},
 		AllowCredentials: true,
 		// OptionsPassthrough: true,
 		Debug: true,
