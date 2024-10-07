@@ -34,7 +34,7 @@ func main() {
 	// defer pgdb
 
 	// Define your route handlers
-	mux.HandleFunc("/login", handler.Login)
+	mux.HandleFunc("/login", handler.Login(pgdb))
 	mux.HandleFunc("/signup", handler.Signup(pgdb))
 	mux.HandleFunc("/home", utils.AuthMiddleware((handler.Home)))
 	// Protected

@@ -18,39 +18,42 @@ import (
 var jwtKey = []byte("secret_key")
 
 // Login handler
-func Login(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("reached login")
-	var user models.User
-	err := json.NewDecoder(r.Body).Decode(&user)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	pass_val, ok := utils.Struct2Map()[user.Username]
-	if !ok || pass_val != user.Password {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
+func Login(db models.Database) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("reached login")
+		var user models.User
+		err := json.NewDecoder(r.Body).Decode(&user)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		_, ok := db.GetUser(user.Username)
+		// pass_val, ok :=
+		if ok.Password != user.Password {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
 
-	expirationTime4Token := time.Now().Add(time.Hour * 5)
-	claims := utils.Claims{
-		Username: user.Username,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime4Token.Unix(),
-		},
-	}
-	newtoken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := newtoken.SignedString(jwtKey)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+		expirationTime4Token := time.Now().Add(time.Hour * 5)
+		claims := utils.Claims{
+			Username: user.Username,
+			StandardClaims: jwt.StandardClaims{
+				ExpiresAt: expirationTime4Token.Unix(),
+			},
+		}
+		newtoken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		tokenString, err := newtoken.SignedString(jwtKey)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
-	// Send the token as a JSON response
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"token": tokenString,
-	})
+		// Send the token as a JSON response
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{
+			"token": tokenString,
+		})
+	}
 }
 
 // Refresh handler
