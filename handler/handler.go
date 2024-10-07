@@ -266,7 +266,20 @@ func GetUserWorkOutPlan(db models.Database) func(w http.ResponseWriter, r *http.
 		w.WriteHeader(http.StatusOK)
 		fmt.Println("##")
 		fmt.Println(User)
-		json.NewEncoder(w).Encode(workout)
+		json_cardio := FormatCardio(db, ageID, workout)
+		// for _, j := range cardio {
+		// 	fmt.Println("Entereed ehre")
+		// 	fmt.Println(j)
+		// }
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(json_cardio)
+		// fmt.Println(json_cardio)
+
+		// w.Header().Add("Content-Type", "application/json")
+		// w.WriteHeader(http.StatusOK)
+		// fmt.Println("##")
+		// fmt.Println(User)
+		// json.NewEncoder(w).Encode(workout)
 		// db.AddUser(user)
 		// mocks.Users = append(mocks.Users, user)
 		// w.Write([]byte("User profile created successfully"))
