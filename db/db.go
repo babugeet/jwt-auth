@@ -148,10 +148,10 @@ func ConvertToUser(t Table) models.User {
 
 func (m Mydb) GetUser(username string) (bool, models.User) {
 	var user Table
-	fmt.Println("Reached GetUser")
+	fmt.Println("Reached GetUser for ", username)
 
 	// Use First to get the first matching row (if exists)
-	result := m.db.Find(&user, "username = ?", username)
+	result := m.db.First(&user, "username = ?", username)
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
 			fmt.Println("User not found")

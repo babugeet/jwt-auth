@@ -100,9 +100,11 @@ func Signup(db models.Database) func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// _, ok := utils.Struct2Map()[user.Username]
-		ok, _ := db.GetUser(user.Username)
+		ok, out := db.GetUser(user.Username)
+		fmt.Println(out)
 		if ok {
 			w.WriteHeader(http.StatusConflict)
+			fmt.Println(user.Username)
 			w.Write([]byte("User already exists, please login"))
 			return
 		}

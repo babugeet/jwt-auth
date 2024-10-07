@@ -14,15 +14,15 @@ func (Workout) TableName() string {
 }
 
 var workouts = []Workout{
-	{BodyTypeID: 1, AgeGroupID: 1, Cardio: 1, Workout: 1},
-	{BodyTypeID: 2, AgeGroupID: 1, Cardio: 1, Workout: 1},
-	{BodyTypeID: 3, AgeGroupID: 1, Cardio: 1, Workout: 1},
-	{BodyTypeID: 1, AgeGroupID: 2, Cardio: 2, Workout: 2},
-	{BodyTypeID: 2, AgeGroupID: 2, Cardio: 2, Workout: 2},
-	{BodyTypeID: 3, AgeGroupID: 2, Cardio: 2, Workout: 2},
-	{BodyTypeID: 1, AgeGroupID: 3, Cardio: 3, Workout: 3},
-	{BodyTypeID: 2, AgeGroupID: 3, Cardio: 3, Workout: 3},
-	{BodyTypeID: 3, AgeGroupID: 3, Cardio: 3, Workout: 3},
+	{ID: 1, BodyTypeID: 1, AgeGroupID: 1, Cardio: 1, Workout: 1},
+	{ID: 2, BodyTypeID: 2, AgeGroupID: 1, Cardio: 1, Workout: 1},
+	{ID: 3, BodyTypeID: 3, AgeGroupID: 1, Cardio: 1, Workout: 1},
+	{ID: 4, BodyTypeID: 1, AgeGroupID: 2, Cardio: 2, Workout: 2},
+	{ID: 5, BodyTypeID: 2, AgeGroupID: 2, Cardio: 2, Workout: 2},
+	{ID: 6, BodyTypeID: 3, AgeGroupID: 2, Cardio: 2, Workout: 2},
+	{ID: 7, BodyTypeID: 1, AgeGroupID: 3, Cardio: 3, Workout: 3},
+	{ID: 8, BodyTypeID: 2, AgeGroupID: 3, Cardio: 3, Workout: 3},
+	{ID: 9, BodyTypeID: 3, AgeGroupID: 3, Cardio: 3, Workout: 3},
 }
 
 type WorkoutSchedule1 struct {
@@ -77,21 +77,21 @@ func (WorkoutSchedule3) TableName() string {
 }
 
 var schedules1 = []WorkoutSchedule1{
-	{ID: 1, Monday: "squats", Tuesday: "jacks", Wednesday: "Legpress", Thursday: "squats", Friday: "jacks", Saturday: "Legpress", Sunday: "squats"},
-	{ID: 2, Monday: "Pushups", Tuesday: "weightlift", Wednesday: "weightlift", Thursday: "Pushups", Friday: "weightlift", Saturday: "weightlift", Sunday: "Pushups"},
-	{ID: 3, Monday: "Pullups", Tuesday: "Benchpress", Wednesday: "squats", Thursday: "Pullups", Friday: "Benchpress", Saturday: "squats", Sunday: "Pullups"},
+	{ID: 1, Monday: "squats", Tuesday: "jacks", Wednesday: "legpress", Thursday: "squats", Friday: "jacks", Saturday: "legpress", Sunday: "squats"},
+	{ID: 2, Monday: "pushups", Tuesday: "weightlift", Wednesday: "weightlift", Thursday: "pushups", Friday: "weightlift", Saturday: "weightlift", Sunday: "pushups"},
+	{ID: 3, Monday: "Pullups", Tuesday: "benchpress", Wednesday: "squats", Thursday: "Pullups", Friday: "benchpress", Saturday: "squats", Sunday: "Pullups"},
 }
 
 var schedules2 = []WorkoutSchedule2{
-	{ID: 1, Monday: "squats", Tuesday: "jacks", Wednesday: "Legpress", Thursday: "squats", Friday: "jacks", Saturday: "Legpress", Sunday: "squats"},
-	{ID: 2, Monday: "Pushups", Tuesday: "weightlift", Wednesday: "weightlift", Thursday: "Pushups", Friday: "weightlift", Saturday: "weightlift", Sunday: "Pushups"},
-	{ID: 3, Monday: "Pullups", Tuesday: "Benchpress", Wednesday: "squats", Thursday: "Pullups", Friday: "Benchpress", Saturday: "squats", Sunday: "Pullups"},
+	{ID: 1, Monday: "squats", Tuesday: "jacks", Wednesday: "legpress", Thursday: "squats", Friday: "jacks", Saturday: "legpress", Sunday: "squats"},
+	{ID: 2, Monday: "pushups", Tuesday: "weightlift", Wednesday: "weightlift", Thursday: "pushups", Friday: "weightlift", Saturday: "weightlift", Sunday: "pushups"},
+	{ID: 3, Monday: "Pullups", Tuesday: "benchpress", Wednesday: "squats", Thursday: "Pullups", Friday: "benchpress", Saturday: "squats", Sunday: "Pullups"},
 }
 
 var schedules3 = []WorkoutSchedule3{
-	{ID: 1, Monday: "squats", Tuesday: "jacks", Wednesday: "Legpress", Thursday: "squats", Friday: "jacks", Saturday: "Legpress", Sunday: "squats"},
-	{ID: 2, Monday: "Pushups", Tuesday: "weightlift", Wednesday: "weightlift", Thursday: "Pushups", Friday: "weightlift", Saturday: "weightlift", Sunday: "Pushups"},
-	{ID: 3, Monday: "Pullups", Tuesday: "Benchpress", Wednesday: "squats", Thursday: "Pullups", Friday: "Benchpress", Saturday: "squats", Sunday: "Pullups"},
+	{ID: 1, Monday: "squats", Tuesday: "jacks", Wednesday: "legpress", Thursday: "squats", Friday: "jacks", Saturday: "legpress", Sunday: "squats"},
+	{ID: 2, Monday: "pushups", Tuesday: "weightlift", Wednesday: "weightlift", Thursday: "pushups", Friday: "weightlift", Saturday: "weightlift", Sunday: "pushups"},
+	{ID: 3, Monday: "Pullups", Tuesday: "benchpress", Wednesday: "squats", Thursday: "Pullups", Friday: "benchpress", Saturday: "squats", Sunday: "Pullups"},
 }
 
 type StrengthSchedule1 struct {
