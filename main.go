@@ -23,28 +23,35 @@ import (
 
 	"jwt-auth/db"
 	"jwt-auth/handler" // Replace with your actual module name
+	"jwt-auth/utils"
 
 	"github.com/rs/cors"
 )
 
 func main() {
 	mux := http.NewServeMux()
-	_ = db.NewMySQLdb()
+	pgdb := db.NewMydb()
+	// defer pgdb
 
 	// Define your route handlers
 	mux.HandleFunc("/login", handler.Login)
-	mux.HandleFunc("/signup", handler.Signup)
-	mux.HandleFunc("/home", handler.Home)       // Protected
+	mux.HandleFunc("/signup", handler.Signup(pgdb))
+	mux.HandleFunc("/home", utils.AuthMiddleware((handler.Home)))
+	// Protected
 	mux.HandleFunc("/refresh", handler.Refresh) // Protected
-	mux.HandleFunc("/check-auth", handler.CheckAuth)
+	mux.HandleFunc("/check-auth", utils.AuthMiddleware(handler.CheckAuth))
+	mux.HandleFunc("/getuser/{id}", utils.AuthMiddleware(handler.GetUserById(pgdb)))
+	mux.HandleFunc("/getuser/{id}/workoutplan", utils.AuthMiddleware(handler.GetUserWorkOutPlan(pgdb)))
+	mux.HandleFunc("/getuser/{id}/cardioplan", utils.AuthMiddleware(handler.GetUserCardioPlan(pgdb)))
 
 	// Set up CORS
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:8080/*", "http://localhost:8081/*", "http://localhost:8080/", "http://localhost:8081"}, // Replace with your Flutter app's URL
-		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
-		AllowedHeaders:   []string{"Content-Type", "Authorization"},
-		ExposedHeaders:   []string{"Set-Cookie", "Content-Length", "Date"},
-		AllowCredentials: true,
+		AllowedOrigins:      []string{"*"}, // Replace with your Flutter app's URL
+		AllowedMethods:      []string{"GET", "POST", "OPTIONS"},
+		AllowedHeaders:      []string{"*"},
+		ExposedHeaders:      []string{"*"},
+		AllowPrivateNetwork: true,
+		AllowCredentials:    true,
 		// OptionsPassthrough: true,
 		Debug: true,
 	})

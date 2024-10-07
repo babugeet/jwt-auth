@@ -6,6 +6,8 @@ import (
 	"jwt-auth/mocks"
 	"jwt-auth/models"
 	"jwt-auth/utils"
+	"jwt-auth/variables"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -30,7 +32,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	expirationTime4Token := time.Now().Add(time.Minute * 5)
+	expirationTime4Token := time.Now().Add(time.Hour * 5)
 	claims := utils.Claims{
 		Username: user.Username,
 		StandardClaims: jwt.StandardClaims{
@@ -88,43 +90,48 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 }
 
 // Signup handler
-func Signup(w http.ResponseWriter, r *http.Request) {
-	var user models.User
-	err := json.NewDecoder(r.Body).Decode(&user)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
+func Signup(db models.Database) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("reached signup")
+		var user models.User
+		err := json.NewDecoder(r.Body).Decode(&user)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		// _, ok := utils.Struct2Map()[user.Username]
+		ok, _ := db.GetUser(user.Username)
+		if ok {
+			w.WriteHeader(http.StatusConflict)
+			w.Write([]byte("User already exists, please login"))
+			return
+		}
+		db.AddUser(user)
+		mocks.Users = append(mocks.Users, user)
+		w.Write([]byte("User profile created successfully"))
 	}
-	_, ok := utils.Struct2Map()[user.Username]
-	if ok {
-		w.WriteHeader(http.StatusConflict)
-		w.Write([]byte("User already exists, please login"))
-		return
-	}
-	mocks.Users = append(mocks.Users, user)
-	w.Write([]byte("User profile created successfully"))
 }
 
 // CheckAuth handler
 func CheckAuth(w http.ResponseWriter, r *http.Request) {
 	// Expect the token from Authorization header
-	authHeader := r.Header.Get("Authorization")
-	if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	// authHeader := r.Header.Get("Authorization")
+	// if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+	// 	w.WriteHeader(http.StatusUnauthorized)
+	// 	return
+	// }
+	// tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
-	claims := &utils.Claims{}
-	tkn, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
-		return jwtKey, nil
-	})
-	if err != nil || !tkn.Valid {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
+	// claims := &utils.Claims{}
+	// tkn, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
+	// 	return jwtKey, nil
+	// })
+	// if err != nil || !tkn.Valid {
+	// 	w.WriteHeader(http.StatusUnauthorized)
+	// 	return
+	// }
 
-	w.Write([]byte(fmt.Sprintf("Hello, %s", claims.Username)))
+	w.Write([]byte("Hello"))
 }
 
 // Home handler
@@ -147,4 +154,301 @@ func Home(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write([]byte(fmt.Sprintf("Hello, %s", claims.Username)))
+}
+
+func GetUserById(db models.Database) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println(r)
+		// fmt.Println("reached GetUserById")
+		// authHeader := r.Header.Get("Authorization")
+		// if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+		// 	w.WriteHeader(http.StatusUnauthorized)
+		// 	return
+		// }
+		// tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+
+		// claims := &utils.Claims{}
+		// tkn, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
+		// 	return jwtKey, nil
+		// })
+		// if err != nil || !tkn.Valid {
+		// 	w.WriteHeader(http.StatusUnauthorized)
+		// 	return
+		// }
+		var user models.User
+		err := json.NewDecoder(r.Body).Decode(&user)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		path := r.URL.Path
+		// Split the path into parts
+		parts := strings.Split(path, "/")
+
+		var id string
+		// Check if the correct number of parts is present
+		if len(parts) == 3 {
+			id = parts[2] // "123" (the third part)
+			// fmt.Fprintf(w, "User ID: %s", id)
+		} else {
+			http.Error(w, "Invalid request", http.StatusBadRequest)
+		}
+		// _, ok := utils.Struct2Map()[user.Username]
+		ok, User := db.GetUser(id)
+		if !ok {
+			// w.WriteHeader(http.StatusConflict)
+
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte("User doesnot already exists"))
+			return
+		}
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Println("##")
+		fmt.Println(User)
+		json.NewEncoder(w).Encode(User)
+		// db.AddUser(user)
+		// mocks.Users = append(mocks.Users, user)
+		// w.Write([]byte("User profile created successfully"))
+	}
+}
+
+func GetUserWorkOutPlan(db models.Database) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println(r)
+		// fmt.Println("reached GetUserById")
+		// authHeader := r.Header.Get("Authorization")
+		// if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+		// 	w.WriteHeader(http.StatusUnauthorized)
+		// 	return
+		// }
+		// tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+
+		// claims := &utils.Claims{}
+		// tkn, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
+		// 	return jwtKey, nil
+		// })
+		// if err != nil || !tkn.Valid {
+		// 	w.WriteHeader(http.StatusUnauthorized)
+		// 	return
+		// }
+		var user models.User
+		err := json.NewDecoder(r.Body).Decode(&user)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		path := r.URL.Path
+		// Split the path into parts
+		parts := strings.Split(path, "/")
+
+		var id string
+		// Check if the correct number of parts is present
+		if len(parts) == 4 {
+			id = parts[2] // "123" (the third part)
+			// fmt.Fprintf(w, "User ID: %s", id)
+		} else {
+			http.Error(w, "Invalid request", http.StatusBadRequest)
+		}
+		// _, ok := utils.Struct2Map()[user.Username]
+		ok, User := db.GetUser(id)
+		if !ok {
+			// w.WriteHeader(http.StatusConflict)
+
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte("User doesnot already exists"))
+			return
+		}
+		bmiID, ageID := LinkAgeBMIid(User.BMI, User.Age)
+		fmt.Println(bmiID, ageID)
+		workout, _ := db.GetUserWorkOutCardioPlanfromDB(bmiID, ageID)
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Println("##")
+		fmt.Println(User)
+		json.NewEncoder(w).Encode(workout)
+		// db.AddUser(user)
+		// mocks.Users = append(mocks.Users, user)
+		// w.Write([]byte("User profile created successfully"))
+	}
+}
+
+func GetUserCardioPlan(db models.Database) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println(r)
+		// fmt.Println("reached GetUserById")
+		// authHeader := r.Header.Get("Authorization")
+		// if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+		// 	w.WriteHeader(http.StatusUnauthorized)
+		// 	return
+		// }
+		// tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+
+		// claims := &utils.Claims{}
+		// tkn, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
+		// 	return jwtKey, nil
+		// })
+		// if err != nil || !tkn.Valid {
+		// 	w.WriteHeader(http.StatusUnauthorized)
+		// 	return
+		// }
+		var user models.User
+		err := json.NewDecoder(r.Body).Decode(&user)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		path := r.URL.Path
+		// Split the path into parts
+		parts := strings.Split(path, "/")
+
+		var id string
+		// Check if the correct number of parts is present
+		if len(parts) == 4 {
+			id = parts[2] // "123" (the third part)
+			// fmt.Fprintf(w, "User ID: %s", id)
+		} else {
+			http.Error(w, "Invalid request", http.StatusBadRequest)
+		}
+		// _, ok := utils.Struct2Map()[user.Username]
+		ok, User := db.GetUser(id)
+		if !ok {
+			// w.WriteHeader(http.StatusConflict)
+
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte("User doesnot already exists"))
+			return
+		}
+		// type Weekday struct {
+		// 	Monday    string
+		// 	Tuesday   string
+		// 	Wednesday string
+		// 	Thursday  string
+		// 	Friday    string
+		// 	Saturday  string
+		// 	Sunday    string
+		// }
+		// Today = "Sunday"
+
+		bmiID, ageID := LinkAgeBMIid(User.BMI, User.Age)
+		fmt.Println(bmiID, ageID)
+		_, cardio := db.GetUserWorkOutCardioPlanfromDB(bmiID, ageID)
+		// cardioData, _ := cardio.()
+		// fmt.Println(cardioData)
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Println("##")
+		fmt.Println(User)
+		json_cardio := FormatCardio(db, ageID, cardio)
+		// for _, j := range cardio {
+		// 	fmt.Println("Entereed ehre")
+		// 	fmt.Println(j)
+		// }
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(json_cardio)
+		// fmt.Println(json_cardio)
+
+		// json.NewEncoder(w).Encode(string(json_cardio))
+		// w.Header().Set("Content-Type", "application/json")
+		// db.AddUser(user)
+		// mocks.Users = append(mocks.Users, user)
+		// w.Write([]byte("User profile created successfully"))
+	}
+}
+
+func LinkAgeBMIid(bmi, age int64) (int, int) {
+	// Body type 1 Underweight = <18.5
+	// Body type 2 Normal weight = 18.5–24.9
+	// Body type 3 Overweight = 25–29.9
+	var bmiID, ageID int
+	if bmi <= 18 {
+		bmiID = 1
+	} else if 18 < bmi && bmi <= 25 {
+		bmiID = 2
+	} else {
+		bmiID = 3
+	}
+	// Group 1 is Age less than 20
+	// Group 2 is Age between 21 and  40
+	// Group 3 is Age above 41 a
+	if age <= 20 {
+		ageID = 1
+	} else if 21 < age && age <= 40 {
+		ageID = 2
+	} else {
+		ageID = 3
+	}
+	return bmiID, ageID
+
+}
+
+func FormatCardio(db models.Database, ageID int, cardio []models.Weekday) []byte {
+	dayColumnName := variables.DayColumnName
+	data := map[string]interface{}{}
+	for _, j := range cardio {
+		fmt.Println("Entereed ehre")
+		fmt.Println(j)
+		// var test models.CardioList
+		switch dayColumnName {
+		case "Monday":
+			reps, item := db.GetReps(ageID, j.Monday)
+
+			data[item] = reps
+			// var schedule WorkoutSchedule1
+			// result := db.Find(&schedule)
+
+			// cardioSchedule = schedule
+		case "Tuesday":
+			reps, item := db.GetReps(ageID, j.Tuesday)
+			// var schedule WorkoutSchedule2
+			// result := db.Find(&schedule)
+			data[item] = reps
+			// cardioSchedule = schedule
+		case "Wednesday":
+			reps, item := db.GetReps(ageID, j.Wednesday)
+			// var schedule WorkoutSchedule3
+			data[item] = reps
+			// cardioSchedule = schedule
+		case "Thursday":
+			reps, item := db.GetReps(ageID, j.Thursday)
+			// var schedule WorkoutSchedule3
+			data[item] = reps
+		case "Friday":
+			reps, item := db.GetReps(ageID, j.Friday)
+			// var schedule WorkoutSchedule3
+			data[item] = reps
+		case "Saturday":
+			reps, item := db.GetReps(ageID, j.Saturday)
+			// var schedule WorkoutSchedule3
+			data[item] = reps
+		case "Sunday":
+			reps, item := db.GetReps(ageID, j.Sunday)
+			// var schedule WorkoutSchedule3
+			data[item] = reps
+		default:
+			log.Println("No matching workout schedule found for the given cardio and workout values.")
+		}
+	}
+	// jsonData, err := json.Marshal(data)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// prettyJSON, err := json.MarshalIndent(data, "", "  ")
+	// if err != nil {
+	// 	fmt.Println("Error marshalling data for pretty print:", err)
+
+	// }
+
+	// // Print the pretty JSON string
+	// fmt.Println("Pretty JSON Output:")
+	// fmt.Println(string(prettyJSON))
+
+	// return string(prettyJSON)
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		fmt.Println("Error marshalling data for pretty print:", err)
+		// return
+	}
+	return jsonData
+
 }
