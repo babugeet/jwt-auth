@@ -18,39 +18,42 @@ import (
 var jwtKey = []byte("secret_key")
 
 // Login handler
-func Login(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("reached login")
-	var user models.User
-	err := json.NewDecoder(r.Body).Decode(&user)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	pass_val, ok := utils.Struct2Map()[user.Username]
-	if !ok || pass_val != user.Password {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
+func Login(db models.Database) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("reached login")
+		var user models.User
+		err := json.NewDecoder(r.Body).Decode(&user)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		_, ok := db.GetUser(user.Username)
+		// pass_val, ok :=
+		if ok.Password != user.Password {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
 
-	expirationTime4Token := time.Now().Add(time.Hour * 5)
-	claims := utils.Claims{
-		Username: user.Username,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime4Token.Unix(),
-		},
-	}
-	newtoken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := newtoken.SignedString(jwtKey)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+		expirationTime4Token := time.Now().Add(time.Hour * 5)
+		claims := utils.Claims{
+			Username: user.Username,
+			StandardClaims: jwt.StandardClaims{
+				ExpiresAt: expirationTime4Token.Unix(),
+			},
+		}
+		newtoken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		tokenString, err := newtoken.SignedString(jwtKey)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
-	// Send the token as a JSON response
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"token": tokenString,
-	})
+		// Send the token as a JSON response
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{
+			"token": tokenString,
+		})
+	}
 }
 
 // Refresh handler
@@ -100,9 +103,11 @@ func Signup(db models.Database) func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// _, ok := utils.Struct2Map()[user.Username]
-		ok, _ := db.GetUser(user.Username)
+		ok, out := db.GetUser(user.Username)
+		fmt.Println(out)
 		if ok {
 			w.WriteHeader(http.StatusConflict)
+			fmt.Println(user.Username)
 			w.Write([]byte("User already exists, please login"))
 			return
 		}
@@ -359,6 +364,91 @@ func GetUserCardioPlan(db models.Database) func(w http.ResponseWriter, r *http.R
 		// }
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(json_cardio)
+		// fmt.Println(json_cardio)
+
+		// json.NewEncoder(w).Encode(string(json_cardio))
+		// w.Header().Set("Content-Type", "application/json")
+		// db.AddUser(user)
+		// mocks.Users = append(mocks.Users, user)
+		// w.Write([]byte("User profile created successfully"))
+	}
+}
+
+func GetUserDietPlan(db models.Database) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println(r)
+		// fmt.Println("reached GetUserById")
+		// authHeader := r.Header.Get("Authorization")
+		// if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+		// 	w.WriteHeader(http.StatusUnauthorized)
+		// 	return
+		// }
+		// tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+
+		// claims := &utils.Claims{}
+		// tkn, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
+		// 	return jwtKey, nil
+		// })
+		// if err != nil || !tkn.Valid {
+		// 	w.WriteHeader(http.StatusUnauthorized)
+		// 	return
+		// }
+		var user models.User
+		err := json.NewDecoder(r.Body).Decode(&user)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		path := r.URL.Path
+		// Split the path into parts
+		parts := strings.Split(path, "/")
+
+		var id string
+		// Check if the correct number of parts is present
+		if len(parts) == 4 {
+			id = parts[2] // "123" (the third part)
+			// fmt.Fprintf(w, "User ID: %s", id)
+		} else {
+			http.Error(w, "Invalid request", http.StatusBadRequest)
+		}
+		// _, ok := utils.Struct2Map()[user.Username]
+		ok, User := db.GetUser(id)
+		if !ok {
+			// w.WriteHeader(http.StatusConflict)
+
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte("User doesnot already exists"))
+			return
+		}
+		// type Weekday struct {
+		// 	Monday    string
+		// 	Tuesday   string
+		// 	Wednesday string
+		// 	Thursday  string
+		// 	Friday    string
+		// 	Saturday  string
+		// 	Sunday    string
+		// }
+		// Today = "Sunday"
+
+		bmiID, ageID := LinkAgeBMIid(User.BMI, User.Age)
+		fmt.Println(bmiID, ageID)
+		diet := db.GetUserDietPlanfromDB(bmiID, ageID)
+		// cardioData, _ := cardio.()
+		// fmt.Println(cardioData)
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Println("##")
+		fmt.Println(diet)
+		b, err := json.Marshal(diet)
+		// json_cardio := FormatCardio(db, ageID, cardio)
+		// for _, j := range cardio {
+		// 	fmt.Println("Entereed ehre")
+		// 	fmt.Println(j)
+		// }
+		// json.NewEncoder(w).Encode(string(diet))
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(b)
 		// fmt.Println(json_cardio)
 
 		// json.NewEncoder(w).Encode(string(json_cardio))
