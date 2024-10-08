@@ -79,19 +79,19 @@ func (WorkoutSchedule3) TableName() string {
 var schedules1 = []WorkoutSchedule1{
 	{ID: 1, Monday: "squats", Tuesday: "jacks", Wednesday: "legpress", Thursday: "squats", Friday: "jacks", Saturday: "legpress", Sunday: "squats"},
 	{ID: 2, Monday: "pushups", Tuesday: "weightlift", Wednesday: "weightlift", Thursday: "pushups", Friday: "weightlift", Saturday: "weightlift", Sunday: "pushups"},
-	{ID: 3, Monday: "Pullups", Tuesday: "benchpress", Wednesday: "squats", Thursday: "Pullups", Friday: "benchpress", Saturday: "squats", Sunday: "Pullups"},
+	{ID: 3, Monday: "pullups", Tuesday: "benchpress", Wednesday: "squats", Thursday: "Pullups", Friday: "benchpress", Saturday: "squats", Sunday: "pullups"},
 }
 
 var schedules2 = []WorkoutSchedule2{
 	{ID: 1, Monday: "squats", Tuesday: "jacks", Wednesday: "legpress", Thursday: "squats", Friday: "jacks", Saturday: "legpress", Sunday: "squats"},
 	{ID: 2, Monday: "pushups", Tuesday: "weightlift", Wednesday: "weightlift", Thursday: "pushups", Friday: "weightlift", Saturday: "weightlift", Sunday: "pushups"},
-	{ID: 3, Monday: "Pullups", Tuesday: "benchpress", Wednesday: "squats", Thursday: "Pullups", Friday: "benchpress", Saturday: "squats", Sunday: "Pullups"},
+	{ID: 3, Monday: "pullups", Tuesday: "benchpress", Wednesday: "squats", Thursday: "Pullups", Friday: "benchpress", Saturday: "squats", Sunday: "pullups"},
 }
 
 var schedules3 = []WorkoutSchedule3{
 	{ID: 1, Monday: "squats", Tuesday: "jacks", Wednesday: "legpress", Thursday: "squats", Friday: "jacks", Saturday: "legpress", Sunday: "squats"},
 	{ID: 2, Monday: "pushups", Tuesday: "weightlift", Wednesday: "weightlift", Thursday: "pushups", Friday: "weightlift", Saturday: "weightlift", Sunday: "pushups"},
-	{ID: 3, Monday: "Pullups", Tuesday: "benchpress", Wednesday: "squats", Thursday: "Pullups", Friday: "benchpress", Saturday: "squats", Sunday: "Pullups"},
+	{ID: 3, Monday: "pullups", Tuesday: "benchpress", Wednesday: "squats", Thursday: "pullups", Friday: "benchpress", Saturday: "squats", Sunday: "pullups"},
 }
 
 type StrengthSchedule1 struct {
@@ -144,19 +144,19 @@ func (StrengthSchedule3) TableName() string {
 
 var strengthschedules1 = []StrengthSchedule1{
 	{ID: 1, Monday: "running", Tuesday: "running", Wednesday: "running", Thursday: "running", Friday: "running", Saturday: "running", Sunday: "running"},
-	{ID: 2, Monday: "cycling", Tuesday: "cycling", Wednesday: "cycling", Thursday: "Cycles", Friday: "cycling", Saturday: "cycling", Sunday: "cycling"},
+	{ID: 2, Monday: "cycling", Tuesday: "cycling", Wednesday: "cycling", Thursday: "cycling", Friday: "cycling", Saturday: "cycling", Sunday: "cycling"},
 	{ID: 3, Monday: "swimming", Tuesday: "swimming", Wednesday: "swimming", Thursday: "swimming", Friday: "swimming", Saturday: "swimming", Sunday: "swimming"},
 }
 
 var strengthschedules2 = []StrengthSchedule2{
 	{ID: 1, Monday: "running", Tuesday: "running", Wednesday: "running", Thursday: "running", Friday: "running", Saturday: "running", Sunday: "running"},
-	{ID: 2, Monday: "cycling", Tuesday: "cycling", Wednesday: "cycling", Thursday: "Cycles", Friday: "cycling", Saturday: "cycling", Sunday: "cycling"},
+	{ID: 2, Monday: "cycling", Tuesday: "cycling", Wednesday: "cycling", Thursday: "cycling", Friday: "cycling", Saturday: "cycling", Sunday: "cycling"},
 	{ID: 3, Monday: "swimming", Tuesday: "swimming", Wednesday: "swimming", Thursday: "swimming", Friday: "swimming", Saturday: "swimming", Sunday: "swimming"},
 }
 
 var strengthschedules3 = []StrengthSchedule3{
 	{ID: 1, Monday: "walking", Tuesday: "walking", Wednesday: "walking", Thursday: "walking", Friday: "walking", Saturday: "walking", Sunday: "walking"},
-	{ID: 2, Monday: "cycling", Tuesday: "cycling", Wednesday: "cycling", Thursday: "Cycles", Friday: "cycling", Saturday: "cycling", Sunday: "cycling"},
+	{ID: 2, Monday: "cycling", Tuesday: "cycling", Wednesday: "cycling", Thursday: "cycling", Friday: "cycling", Saturday: "cycling", Sunday: "cycling"},
 	{ID: 3, Monday: "swimming", Tuesday: "swimming", Wednesday: "swimming", Thursday: "swimming", Friday: "swimming", Saturday: "swimming", Sunday: "swimming"},
 }
 
