@@ -43,6 +43,7 @@ func main() {
 	mux.HandleFunc("/getuser/{id}", utils.AuthMiddleware(handler.GetUserById(pgdb)))
 	mux.HandleFunc("/getuser/{id}/workoutplan", utils.AuthMiddleware(handler.GetUserWorkOutPlan(pgdb)))
 	mux.HandleFunc("/getuser/{id}/cardioplan", utils.AuthMiddleware(handler.GetUserCardioPlan(pgdb)))
+	mux.HandleFunc("/getuser/{id}/dietplan", utils.AuthMiddleware(handler.GetUserDietPlan(pgdb)))
 
 	// Set up CORS
 	c := cors.New(cors.Options{

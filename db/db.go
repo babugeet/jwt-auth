@@ -128,6 +128,28 @@ func NewMydb() models.Database {
 	for _, exercise := range exercises {
 		db.Create(&exercise)
 	}
+
+	err = db.AutoMigrate(&DietPlan1{})
+	if err != nil {
+		fmt.Printf("Error migrating the ExerciseData table in database: %v", err)
+	}
+	err = db.AutoMigrate(&DietPlan2{})
+	if err != nil {
+		fmt.Printf("Error migrating the ExerciseData table in database: %v", err)
+	}
+	err = db.AutoMigrate(&DietPlan3{})
+	if err != nil {
+		fmt.Printf("Error migrating the ExerciseData table in database: %v", err)
+	}
+	for _, diet := range DietPlans1 {
+		db.Create(&diet)
+	}
+	for _, diet := range DietPlans2 {
+		db.Create(&diet)
+	}
+	for _, diet := range DietPlans3 {
+		db.Create(&diet)
+	}
 	log.Println("Data inserted successfully!")
 	return &Mydb{db}
 }
@@ -200,6 +222,23 @@ func (m *Mydb) GetUserWorkOutCardioPlanfromDB(bodyTypeID int, ageGroupID int) ([
 	cardio, workout := GetCardioWorkoutPlan(m.db, plan.Cardio, plan.Workout)
 	fmt.Println(workout, cardio)
 	return workout, cardio
+
+}
+
+func (m *Mydb) GetUserDietPlanfromDB(bodyTypeID int, ageGroupID int) models.DietPlan {
+	// var plan Workout
+	// bodyTypeID := 1 // Example BodyTypeID
+	// ageGroupID := 2 // Example AgeGroupID
+
+	// result := m.db.Where("body_type_id = ? AND age_group_id = ?", bodyTypeID, ageGroupID).Find(&plan)
+	// if result.Error != nil {
+	// 	fmt.Printf("Error fetching exercise plan: %v", result.Error)
+	// }
+
+	// fmt.Printf("Cardio: %d, Workout: %d\n", plan.Cardio, plan.Workout)
+	diet := GetDietPlan(m.db, ageGroupID)
+	// fmt.Println(workout, cardio)
+	return diet
 
 }
 
@@ -278,6 +317,65 @@ func GetCardioWorkoutPlan(db *gorm.DB, cardio int, workout int) ([]models.Weekda
 		log.Println("No matching workout schedule found for the given cardio and workout values.")
 	}
 	return cardioSchedules, workoutSchedules
+
+}
+
+func GetDietPlan(db *gorm.DB, diet int) models.DietPlan {
+	// var cardioSchedules []models.Weekday
+	// var workoutSchedules []models.Weekday
+	var dietplan models.DietPlan
+	// var cardioSchedule interface{}
+	// var workoutSchedule interface{}
+	// currentDay := time.Now().Weekday()
+	dayColumnName := variables.DayColumnName
+	// dayColumnName := "Sunday"
+
+	switch {
+	case diet == 1:
+		// var schedule WorkoutSchedule1
+		// result := db.Find(&schedule)
+		// var dietPlan DietPlan1
+		if err := db.Table("diet_plan1").Where("day = ?", dayColumnName).First(&dietplan).Error; err != nil {
+			log.Println("Error fetching diet plan:", err)
+		} else {
+			fmt.Printf("Diet Plan for %s:\n", dayColumnName)
+			fmt.Printf("Breakfast: %s\n", dietplan.Breakfast)
+			fmt.Printf("Lunch: %s\n", dietplan.Lunch)
+			fmt.Printf("Dinner: %s\n", dietplan.Dinner)
+		}
+
+		// cardioSchedule = schedule
+	case diet == 2:
+		// var schedule WorkoutSchedule2
+		// result := db.Find(&schedule)
+		// var dietPlan DietPlan2
+		if err := db.Table("diet_plan2").Where("day = ?", dayColumnName).First(&dietplan).Error; err != nil {
+			log.Println("Error fetching diet plan:", err)
+		} else {
+			fmt.Printf("Diet Plan for %s:\n", dayColumnName)
+			fmt.Printf("Breakfast: %s\n", dietplan.Breakfast)
+			fmt.Printf("Lunch: %s\n", dietplan.Lunch)
+			fmt.Printf("Dinner: %s\n", dietplan.Dinner)
+		}
+		// cardioSchedule = schedule
+	case diet == 3:
+		// var schedule WorkoutSchedule3
+		// var dietPlan DietPlan3
+		if err := db.Table("diet_plan3").Where("day = ?", dayColumnName).First(&dietplan).Error; err != nil {
+			log.Println("Error fetching diet plan:", err)
+		} else {
+			fmt.Printf("Diet Plan for %s:\n", dayColumnName)
+			fmt.Printf("Breakfast: %s\n", dietplan.Breakfast)
+			fmt.Printf("Lunch: %s\n", dietplan.Lunch)
+			fmt.Printf("Dinner: %s\n", dietplan.Dinner)
+		}
+		// cardioSchedule = schedule
+	default:
+		log.Println("No matching workout schedule found for the given cardio and workout values.")
+	}
+	fmt.Println(dietplan)
+
+	return dietplan
 
 }
 

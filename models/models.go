@@ -43,11 +43,20 @@ type CardioList struct {
 	Swimming     string `json:"swimming,omitempty"`
 	Walking      string `json:"walking,omitempty"`
 }
+type DietPlan struct {
+	// gorm.Model
+	// Day       string `json:"day,omitempty"`       // Day of the week (Monday, Tuesday, etc.)
+	Breakfast string `json:"breakfast,omitempty"` // Breakfast meal
+	Lunch     string `json:"lunch,omitempty"`     // Lunch meal
+	Dinner    string `json:"dinner,omitempty"`    // Dinner meal
+}
 
 type Database interface {
 	GetUser(username string) (bool, User)
 	AddUser(user User) error
 	GetUserWorkOutCardioPlanfromDB(bodyTypeID int, ageGroupID int) ([]Weekday, []Weekday)
+	GetUserDietPlanfromDB(bodyTypeID int, ageGroupID int) DietPlan
+
 	GetReps(ageGroupID int, excerciseType string) (string, string)
 	// Close() error
 	// UpdateUser()
