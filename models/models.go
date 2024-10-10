@@ -12,9 +12,6 @@ type User struct {
 	BMI       int64  `json:"bmi"`
 }
 
-type WorkOutPlan struct {
-}
-
 type FoodChart struct {
 }
 type Weekday struct {
@@ -39,7 +36,7 @@ type CardioList struct {
 	Lunges       string `json:"lunges,omitempty"`
 	LegPress     string `json:"legpress,omitempty"`
 	Running      string `json:"running,omitempty"`
-	Cycle        string `json:"cycle,omitempty"`
+	Cycling      string `json:"cycling,omitempty"`
 	Swimming     string `json:"swimming,omitempty"`
 	Walking      string `json:"walking,omitempty"`
 }
@@ -51,6 +48,40 @@ type DietPlan struct {
 	Dinner    string `json:"dinner,omitempty"`    // Dinner meal
 }
 
+type Workoutplan struct {
+	ID               uint   `gorm:"primaryKey" json:"id"`
+	Date             string `gorm:"uniqueIndex:idx_user_date" json:"date"` // Use time.Time for date operations
+	Username         string `gorm:"uniqueIndex:idx_user_date" json:"username"`
+	SquatsDone       int    `json:"squatsdone"`
+	DeadliftDone     int    `json:"deadliftdone"`
+	PushUpsDone      int    `json:"pushupsdone"`
+	PullUpsDone      int    `json:"pullupsdone"`
+	JumpingJacksDone int    `json:"jumpingjacks_done"`
+	WeightLiftDone   int    `json:"weightliftdone,omitempty"`
+	BenchPressDone   int    `json:"benchpressdone,omitempty"`
+	LungesDone       int    `json:"lungesdone,omitempty"`
+	LegPressDone     int    `json:"legpressdone,omitempty"`
+	RunningDone      int    `json:"runningdone,omitempty"`
+	CyclingDone      int    `json:"cyclingdone,omitempty"`
+	SwimmingDone     int    `json:"swimmingdone,omitempty"`
+	WalkingDone      int    `json:"walkingdone,omitempty"`
+	Squats           string `json:"squats,omitempty"`
+	Deadlift         string `json:"deadlift,omitempty"`
+	PushUps          string `json:"pushups,omitempty"`
+	PullUps          string `json:"pullups,omitempty"`
+	JumpingJacks     string `json:"jumpingjacks,omitempty"`
+	WeightLift       string `json:"weightlift,omitempty"`
+	BenchPress       string `json:"benchpress,omitempty"`
+	Lunges           string `json:"lunges,omitempty"`
+	LegPress         string `json:"legpress,omitempty"`
+	Running          string `json:"running,omitempty"`
+	Cycling          string `json:"cycling,omitempty"`
+	Swimming         string `json:"swimming,omitempty"`
+	Walking          string `json:"walking,omitempty"`
+	Water            int    `json:"water,omitempty"`
+	Steps            int    `json:"steps,omitempty"`
+}
+
 type Database interface {
 	GetUser(username string) (bool, User)
 	AddUser(user User) error
@@ -58,6 +89,7 @@ type Database interface {
 	GetUserDietPlanfromDB(bodyTypeID int, ageGroupID int) DietPlan
 
 	GetReps(ageGroupID int, excerciseType string) (string, string)
+	WriteTarget2DB(user string, workoutplan *Workoutplan) error
 	// Close() error
 	// UpdateUser()
 }

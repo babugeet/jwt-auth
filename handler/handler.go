@@ -53,6 +53,7 @@ func Login(db models.Database) func(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string]string{
 			"token": tokenString,
 		})
+		WriteTarget2UserDB(db, user)
 	}
 }
 
@@ -264,20 +265,21 @@ func GetUserWorkOutPlan(db models.Database) func(w http.ResponseWriter, r *http.
 			w.Write([]byte("User doesnot already exists"))
 			return
 		}
-		bmiID, ageID := LinkAgeBMIid(User.BMI, User.Age)
-		fmt.Println(bmiID, ageID)
-		workout, _ := db.GetUserWorkOutCardioPlanfromDB(bmiID, ageID)
+		json_workout, _ := CreateWorkoutCardioResponse(db, User)
+		// bmiID, ageID := LinkAgeBMIid(User.BMI, User.Age)
+		// fmt.Println(bmiID, ageID)
+		// workout, _ := db.GetUserWorkOutCardioPlanfromDB(bmiID, ageID)
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fmt.Println("##")
 		fmt.Println(User)
-		json_cardio := FormatCardio(db, ageID, workout)
+		// json_cardio := FormatCardio(db, ageID, workout)
 		// for _, j := range cardio {
 		// 	fmt.Println("Entereed ehre")
 		// 	fmt.Println(j)
 		// }
 		w.Header().Set("Content-Type", "application/json")
-		w.Write(json_cardio)
+		w.Write(json_workout)
 		// fmt.Println(json_cardio)
 
 		// w.Header().Add("Content-Type", "application/json")
@@ -347,23 +349,38 @@ func GetUserCardioPlan(db models.Database) func(w http.ResponseWriter, r *http.R
 		// 	Sunday    string
 		// }
 		// Today = "Sunday"
-
-		bmiID, ageID := LinkAgeBMIid(User.BMI, User.Age)
-		fmt.Println(bmiID, ageID)
-		_, cardio := db.GetUserWorkOutCardioPlanfromDB(bmiID, ageID)
-		// cardioData, _ := cardio.()
-		// fmt.Println(cardioData)
+		_, json_cardio := CreateWorkoutCardioResponse(db, User)
+		// bmiID, ageID := LinkAgeBMIid(User.BMI, User.Age)
+		// fmt.Println(bmiID, ageID)
+		// workout, _ := db.GetUserWorkOutCardioPlanfromDB(bmiID, ageID)
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fmt.Println("##")
 		fmt.Println(User)
-		json_cardio := FormatCardio(db, ageID, cardio)
+		// json_cardio := FormatCardio(db, ageID, workout)
 		// for _, j := range cardio {
 		// 	fmt.Println("Entereed ehre")
 		// 	fmt.Println(j)
 		// }
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(json_cardio)
+
+		// bmiID, ageID := LinkAgeBMIid(User.BMI, User.Age)
+		// fmt.Println(bmiID, ageID)
+		// _, cardio := db.GetUserWorkOutCardioPlanfromDB(bmiID, ageID)
+		// // cardioData, _ := cardio.()
+		// // fmt.Println(cardioData)
+		// w.Header().Add("Content-Type", "application/json")
+		// w.WriteHeader(http.StatusOK)
+		// fmt.Println("##")
+		// fmt.Println(User)
+		// json_cardio := FormatCardio(db, ageID, cardio)
+		// // for _, j := range cardio {
+		// // 	fmt.Println("Entereed ehre")
+		// // 	fmt.Println(j)
+		// // }
+		// w.Header().Set("Content-Type", "application/json")
+		// w.Write(json_cardio)
 		// fmt.Println(json_cardio)
 
 		// json.NewEncoder(w).Encode(string(json_cardio))
@@ -456,6 +473,65 @@ func GetUserDietPlan(db models.Database) func(w http.ResponseWriter, r *http.Req
 		// db.AddUser(user)
 		// mocks.Users = append(mocks.Users, user)
 		// w.Write([]byte("User profile created successfully"))
+	}
+}
+
+func GetUserInput(db models.Database) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println(r)
+		// fmt.Println("reached GetUserById")
+		// authHeader := r.Header.Get("Authorization")
+		// if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+		// 	w.WriteHeader(http.StatusUnauthorized)
+		// 	return
+		// }
+		// tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+
+		// claims := &utils.Claims{}
+		// tkn, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
+		// 	return jwtKey, nil
+		// })
+		// if err != nil || !tkn.Valid {
+		// 	w.WriteHeader(http.StatusUnauthorized)
+		// 	return
+		// }
+		var userinput models.Workoutplan
+		fmt.Println("Recieved user input is ", r.Body)
+		err := json.NewDecoder(r.Body).Decode(&userinput)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		path := r.URL.Path
+		// Split the path into parts
+		parts := strings.Split(path, "/")
+
+		var id string
+		// Check if the correct number of parts is present
+		if len(parts) == 3 {
+			id = parts[2] // "123" (the third part)
+			// fmt.Fprintf(w, "User ID: %s", id)
+		} else {
+			http.Error(w, "Invalid request", http.StatusBadRequest)
+		}
+		err = db.WriteTarget2DB(id, &userinput)
+		// _, ok := utils.Struct2Map()[user.Username]
+		// ok, User := db.GetUser(id)
+		if err != nil {
+			// w.WriteHeader(http.StatusConflict)
+
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Println("##")
+		// fmt.Println(User)
+		// json.NewEncoder(w).Encode(User)
+		// db.AddUser(user)
+		// mocks.Users = append(mocks.Users, user)
+		w.Write([]byte("Entry updated successfully"))
 	}
 }
 
@@ -554,4 +630,31 @@ func FormatCardio(db models.Database, ageID int, cardio []models.Weekday) []byte
 	}
 	return jsonData
 
+}
+
+func CreateWorkoutCardioResponse(db models.Database, User models.User) ([]byte, []byte) {
+
+	bmiID, ageID := LinkAgeBMIid(User.BMI, User.Age)
+	fmt.Println(bmiID, ageID)
+	workout, cardio := db.GetUserWorkOutCardioPlanfromDB(bmiID, ageID)
+	json_cardio := FormatCardio(db, ageID, cardio)
+	json_workout := FormatCardio(db, ageID, workout)
+	return json_workout, json_cardio
+}
+
+func WriteTarget2UserDB(db1 models.Database, user models.User) {
+	workout, cardio := CreateWorkoutCardioResponse(db1, user)
+
+	var totalworkoutCardio models.Workoutplan
+	fmt.Printf("%+v", totalworkoutCardio)
+
+	json.Unmarshal(workout, &totalworkoutCardio)
+	json.Unmarshal(cardio, &totalworkoutCardio)
+	fmt.Println(string(workout))
+	fmt.Println(string(cardio))
+	// TotalworkoutCardio.Date = time.Now().Truncate(24 * time.Hour)
+	// TotalworkoutCardio.Username = user.Username
+	fmt.Printf("%+v", totalworkoutCardio)
+	fmt.Println("#$#$#$#")
+	db1.WriteTarget2DB(user.Username, &totalworkoutCardio)
 }

@@ -5,6 +5,7 @@ import (
 	"jwt-auth/models"
 	"jwt-auth/variables"
 	"log"
+	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -131,15 +132,15 @@ func NewMydb() models.Database {
 
 	err = db.AutoMigrate(&DietPlan1{})
 	if err != nil {
-		fmt.Printf("Error migrating the ExerciseData table in database: %v", err)
+		fmt.Printf("Error migrating the Diet table in database: %v", err)
 	}
 	err = db.AutoMigrate(&DietPlan2{})
 	if err != nil {
-		fmt.Printf("Error migrating the ExerciseData table in database: %v", err)
+		fmt.Printf("Error migrating the Diet table in database: %v", err)
 	}
 	err = db.AutoMigrate(&DietPlan3{})
 	if err != nil {
-		fmt.Printf("Error migrating the ExerciseData table in database: %v", err)
+		fmt.Printf("Error migrating the Diet table in database: %v", err)
 	}
 	for _, diet := range DietPlans1 {
 		db.Create(&diet)
@@ -150,6 +151,11 @@ func NewMydb() models.Database {
 	for _, diet := range DietPlans3 {
 		db.Create(&diet)
 	}
+	err = db.AutoMigrate(&models.Workoutplan{})
+	if err != nil {
+		fmt.Printf("Error migrating the Workout table in database: %v", err)
+	}
+
 	log.Println("Data inserted successfully!")
 	return &Mydb{db}
 }
@@ -390,3 +396,70 @@ func (m *Mydb) GetReps(ageGroupID int, excerciseType string) (string, string) {
 	}
 	return deadlift, excerciseType
 }
+
+func (m *Mydb) WriteTarget2DB(username string, workoutplan *models.Workoutplan) error {
+	var existingWorkout models.Workoutplan
+	today := time.Now().Format("2006-01-02")
+
+	// Set workout plan values
+	workoutplan.Username = username
+	workoutplan.Date = today
+
+	// Check if a record with the same username and date already exists
+	err := m.db.Where("username = ? AND date = ?", username, today).First(&existingWorkout).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		// An error occurred other than not finding the record
+		fmt.Println("Error fetching record:", err)
+		return err
+	}
+
+	if err == gorm.ErrRecordNotFound {
+		// Record does not exist, create a new one
+		if err := m.db.Create(&workoutplan).Error; err != nil {
+			fmt.Println("Error creating new record:", err)
+			return err
+		} else {
+			fmt.Println("New record created successfully")
+		}
+	} else {
+		// Record exists, update it with the new data
+		if err := m.db.Model(&existingWorkout).Updates(workoutplan).Error; err != nil {
+			fmt.Println("Error updating existing record:", err)
+			return err
+		} else {
+			fmt.Println("Record updated successfully")
+		}
+	}
+	return nil
+}
+
+// var workoutable models.Workoutplan
+// // today := time.Now().Truncate(24 * time.Hour)
+// now := time.Now()
+// today := now.Format("2006-01-02")
+
+// workoutplan.Username = user.Username
+// workoutplan.Date = today
+// fmt.Printf("%+v", workoutplan)
+// if err := m.db.Where("username = ? AND date = ?", user.Username, today).First(&workoutable).Error; err != nil {
+// 	fmt.Println("theisoeio")
+// 	if err == gorm.ErrRecordNotFound {
+// 		// Record does not exist, create a new one
+// 		workoutplan.Username = user.Username
+// 		workoutplan.Date = today
+// 	}
+// 	if err := m.db.Create(&workoutplan).Error; err != nil {
+// 		fmt.Println(err)
+// 	}
+// } else {
+// 	fmt.Println(err)
+// 	fmt.Println("record found")
+// }
+// fmt.Printf("%+v", workoutplan)
+// if err := m.db.Where("username = ? AND date = ?", user.Username, today).Save(&workoutplan).Error; err != nil {
+// 	fmt.Println(err)
+// }
+// }
+
+// m.db.Save(workoutplan)
+// }

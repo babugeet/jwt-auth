@@ -77,19 +77,19 @@ func (WorkoutSchedule3) TableName() string {
 }
 
 var schedules1 = []WorkoutSchedule1{
-	{ID: 1, Monday: "squats", Tuesday: "jacks", Wednesday: "legpress", Thursday: "squats", Friday: "jacks", Saturday: "legpress", Sunday: "squats"},
+	{ID: 1, Monday: "squats", Tuesday: "jumpingjacks", Wednesday: "legpress", Thursday: "squats", Friday: "jumpingjacks", Saturday: "legpress", Sunday: "squats"},
 	{ID: 2, Monday: "pushups", Tuesday: "weightlift", Wednesday: "weightlift", Thursday: "pushups", Friday: "weightlift", Saturday: "weightlift", Sunday: "pushups"},
 	{ID: 3, Monday: "pullups", Tuesday: "benchpress", Wednesday: "squats", Thursday: "Pullups", Friday: "benchpress", Saturday: "squats", Sunday: "pullups"},
 }
 
 var schedules2 = []WorkoutSchedule2{
-	{ID: 1, Monday: "squats", Tuesday: "jacks", Wednesday: "legpress", Thursday: "squats", Friday: "jacks", Saturday: "legpress", Sunday: "squats"},
+	{ID: 1, Monday: "squats", Tuesday: "jumpingjacks", Wednesday: "legpress", Thursday: "squats", Friday: "jumpingjacks", Saturday: "legpress", Sunday: "squats"},
 	{ID: 2, Monday: "pushups", Tuesday: "weightlift", Wednesday: "weightlift", Thursday: "pushups", Friday: "weightlift", Saturday: "weightlift", Sunday: "pushups"},
 	{ID: 3, Monday: "pullups", Tuesday: "benchpress", Wednesday: "squats", Thursday: "Pullups", Friday: "benchpress", Saturday: "squats", Sunday: "pullups"},
 }
 
 var schedules3 = []WorkoutSchedule3{
-	{ID: 1, Monday: "squats", Tuesday: "jacks", Wednesday: "legpress", Thursday: "squats", Friday: "jacks", Saturday: "legpress", Sunday: "squats"},
+	{ID: 1, Monday: "squats", Tuesday: "jumpingjacks", Wednesday: "legpress", Thursday: "squats", Friday: "jumpingjacks", Saturday: "legpress", Sunday: "squats"},
 	{ID: 2, Monday: "pushups", Tuesday: "weightlift", Wednesday: "weightlift", Thursday: "pushups", Friday: "weightlift", Saturday: "weightlift", Sunday: "pushups"},
 	{ID: 3, Monday: "pullups", Tuesday: "benchpress", Wednesday: "squats", Thursday: "pullups", Friday: "benchpress", Saturday: "squats", Sunday: "pullups"},
 }
