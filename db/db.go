@@ -1,11 +1,11 @@
 package db
 
 import (
+	"encoding/json"
 	"fmt"
 	"jwt-auth/models"
 	"jwt-auth/variables"
 	"log"
-	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -15,7 +15,10 @@ type Mydb struct {
 	db *gorm.DB
 }
 
-const Exercise_table = "exercise_data"
+const (
+	Exercise_table     = "exercise_data"
+	Workoutplans_table = "workoutplans"
+)
 
 type Table struct {
 	Username  string `gorm:"primaryKey"`
@@ -399,11 +402,11 @@ func (m *Mydb) GetReps(ageGroupID int, excerciseType string) (string, string) {
 
 func (m *Mydb) WriteTarget2DB(username string, workoutplan *models.Workoutplan) error {
 	var existingWorkout models.Workoutplan
-	today := time.Now().Format("2006-01-02")
+	today := variables.Today
 
 	// Set workout plan values
 	workoutplan.Username = username
-	workoutplan.Date = today
+	workoutplan.Date = variables.Today
 
 	// Check if a record with the same username and date already exists
 	err := m.db.Where("username = ? AND date = ?", username, today).First(&existingWorkout).Error
@@ -431,6 +434,96 @@ func (m *Mydb) WriteTarget2DB(username string, workoutplan *models.Workoutplan) 
 		}
 	}
 	return nil
+}
+
+func (m *Mydb) GetUserWorkoutDetails4mDB(user string) models.Workoutplan {
+	var details models.Workoutplan
+	if err := m.db.Table(Workoutplans_table).Select("*").Where("username = ?", user).Where("date = ?", variables.Today).Scan(&details).Error; err != nil {
+		fmt.Println("Error querying record:", err)
+	} else {
+		fmt.Printf("Recieved details  %d\n", details)
+	}
+	return details
+}
+
+func (m *Mydb) GetUserWorkoutDetails42day4mDB(user string, cardio []byte, workout []byte) models.Workouttodaylist {
+	var cardiomap map[string]interface{}
+	var workoutmap map[string]interface{}
+	workouttoday := []models.Workouttoday{}
+
+	// Unmarshal the JSON byte slices into maps
+	err1 := json.Unmarshal(cardio, &cardiomap)
+	if err1 != nil {
+		fmt.Println("Error unmarshalling cardio data:", err1)
+		return models.Workouttodaylist{} // Return an empty result on error
+	}
+	fmt.Println("cardiomap:", cardiomap)
+
+	err2 := json.Unmarshal(workout, &workoutmap)
+	if err2 != nil {
+		fmt.Println("Error unmarshalling workout data:", err2)
+		return models.Workouttodaylist{} // Return an empty result on error
+	}
+	fmt.Println("workoutmap:", workoutmap)
+
+	// Iterate through the cardio map to populate workouttoday
+	for key, value := range cardiomap {
+		var details int
+		if err := m.db.Table(Workoutplans_table).Select(key+"done").Where("username = ?", user).Where("date = ?", variables.Today).Scan(&details).Error; err != nil {
+			fmt.Println("Error querying record:", err)
+		} else {
+			fmt.Printf("Received details for cardio: %d\n", details)
+		}
+
+		// Create a Workouttoday entry
+		target, ok := value.(string)
+		if !ok {
+			fmt.Printf("Error: target for key %s is not a string\n", key)
+			continue
+		}
+
+		workoutEntry := models.Workouttoday{
+			Name:   key,
+			Target: target,
+			Done:   details,
+		}
+
+		workouttoday = append(workouttoday, workoutEntry)
+	}
+
+	// Iterate through the workout map to populate workouttoday
+	for key, value := range workoutmap {
+		var details int
+		if err := m.db.Table(Workoutplans_table).Select(key+"done").Where("username = ?", user).Where("date = ?", variables.Today).Scan(&details).Error; err != nil {
+			fmt.Println("Error querying record:", err)
+		} else {
+			fmt.Printf("Received details for workout: %d\n", details)
+		}
+
+		// Create a Workouttoday entry
+		target, ok := value.(string)
+		if !ok {
+			fmt.Printf("Error: target for key %s is not a string\n", key)
+			continue
+		}
+
+		workoutEntry := models.Workouttoday{
+			Name:   key,
+			Target: target,
+			Done:   details,
+		}
+
+		workouttoday = append(workouttoday, workoutEntry)
+	}
+
+	// Construct the final Workouttodaylist
+	workoutList := models.Workouttodaylist{
+		Workout: workouttoday, // Assuming Workouttodaylist has a Workout field
+	}
+
+	fmt.Println("Final content of the list:")
+	fmt.Println(workoutList)
+	return workoutList
 }
 
 // var workoutable models.Workoutplan
