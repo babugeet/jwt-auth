@@ -28,13 +28,13 @@ type Weekday struct {
 type CardioList struct {
 	Squats       string `json:"squats,omitempty"`
 	Deadlift     string `json:"deadlift,omitempty"`
-	PushUps      string `json:"pushups,omitempty"`
-	PullUps      string `json:"pullups,omitempty"`
-	JumpingJacks string `json:"jumpingjacks,omitempty"`
-	WeightLift   string `json:"weightlift,omitempty"`
-	BenchPress   string `json:"benchpress,omitempty"`
+	Pushups      string `json:"pushups,omitempty"`
+	Pullups      string `json:"pullups,omitempty"`
+	Jumpingjacks string `json:"jumpingjacks,omitempty"`
+	Weightlift   string `json:"weightlift,omitempty"`
+	Benchpress   string `json:"benchpress,omitempty"`
 	Lunges       string `json:"lunges,omitempty"`
-	LegPress     string `json:"legpress,omitempty"`
+	Legpress     string `json:"legpress,omitempty"`
 	Running      string `json:"running,omitempty"`
 	Cycling      string `json:"cycling,omitempty"`
 	Swimming     string `json:"swimming,omitempty"`
@@ -52,34 +52,43 @@ type Workoutplan struct {
 	ID               uint   `gorm:"primaryKey" json:"id"`
 	Date             string `gorm:"uniqueIndex:idx_user_date" json:"date"` // Use time.Time for date operations
 	Username         string `gorm:"uniqueIndex:idx_user_date" json:"username"`
-	SquatsDone       int    `json:"squatsdone"`
-	DeadliftDone     int    `json:"deadliftdone"`
-	PushUpsDone      int    `json:"pushupsdone"`
-	PullUpsDone      int    `json:"pullupsdone"`
-	JumpingJacksDone int    `json:"jumpingjacks_done"`
-	WeightLiftDone   int    `json:"weightliftdone,omitempty"`
-	BenchPressDone   int    `json:"benchpressdone,omitempty"`
-	LungesDone       int    `json:"lungesdone,omitempty"`
-	LegPressDone     int    `json:"legpressdone,omitempty"`
-	RunningDone      int    `json:"runningdone,omitempty"`
-	CyclingDone      int    `json:"cyclingdone,omitempty"`
-	SwimmingDone     int    `json:"swimmingdone,omitempty"`
-	WalkingDone      int    `json:"walkingdone,omitempty"`
+	Squatsdone       int    `json:"squatsdone"`
+	Deadliftdone     int    `json:"deadliftdone"`
+	Pushupsdone      int    `json:"pushupsdone"`
+	Pullupsdone      int    `json:"pullupsdone"`
+	Jumpingjacksdone int    `json:"jumpingjacksdone"`
+	Weightliftdone   int    `json:"weightliftdone,omitempty"`
+	Benchpressdone   int    `json:"benchpressdone,omitempty"`
+	Lungesdone       int    `json:"lungesdone,omitempty"`
+	Legpressdone     int    `json:"legpressdone,omitempty"`
+	Runningdone      int    `json:"runningdone,omitempty"`
+	Cyclingdone      int    `json:"cyclingdone,omitempty"`
+	Swimmingdone     int    `json:"swimmingdone,omitempty"`
+	Walkingdone      int    `json:"walkingdone,omitempty"`
 	Squats           string `json:"squats,omitempty"`
 	Deadlift         string `json:"deadlift,omitempty"`
-	PushUps          string `json:"pushups,omitempty"`
-	PullUps          string `json:"pullups,omitempty"`
-	JumpingJacks     string `json:"jumpingjacks,omitempty"`
-	WeightLift       string `json:"weightlift,omitempty"`
-	BenchPress       string `json:"benchpress,omitempty"`
+	Pushups          string `json:"pushups,omitempty"`
+	Pullups          string `json:"pullups,omitempty"`
+	Jumpingjacks     string `json:"jumpingjacks,omitempty"`
+	Weightlift       string `json:"weightlift,omitempty"`
+	Benchpress       string `json:"benchpress,omitempty"`
 	Lunges           string `json:"lunges,omitempty"`
-	LegPress         string `json:"legpress,omitempty"`
+	Legpress         string `json:"legpress,omitempty"`
 	Running          string `json:"running,omitempty"`
 	Cycling          string `json:"cycling,omitempty"`
 	Swimming         string `json:"swimming,omitempty"`
 	Walking          string `json:"walking,omitempty"`
 	Water            int    `json:"water,omitempty"`
 	Steps            int    `json:"steps,omitempty"`
+}
+
+type Workouttodaylist struct {
+	Workout []Workouttoday
+}
+type Workouttoday struct {
+	Name   string
+	Target string
+	Done   int
 }
 
 type Database interface {
@@ -90,6 +99,8 @@ type Database interface {
 
 	GetReps(ageGroupID int, excerciseType string) (string, string)
 	WriteTarget2DB(user string, workoutplan *Workoutplan) error
+	GetUserWorkoutDetails4mDB(user string) Workoutplan
+	GetUserWorkoutDetails42day4mDB(user string, cardio []byte, workout []byte) Workouttodaylist
 	// Close() error
 	// UpdateUser()
 }
