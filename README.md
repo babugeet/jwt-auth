@@ -1,4 +1,4 @@
 # jwt-auth
 simple auth
 
-Start command: go run main.go
+Start command:`` go run main.go``
