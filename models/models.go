@@ -99,8 +99,9 @@ type Database interface {
 
 	GetReps(ageGroupID int, excerciseType string) (string, string)
 	WriteTarget2DB(user string, workoutplan *Workoutplan) error
-	GetUserWorkoutDetails4mDB(user string) Workoutplan
-	GetUserWorkoutDetails42day4mDB(user string, cardio []byte, workout []byte) Workouttodaylist
+	GetUserWorkoutDetails4mDB(user string, date string) Workoutplan
+	GetUserWorkoutDetails42day4mDB(user string, cardio []byte, workout []byte, date string) Workouttodaylist
+	CheckUserDateComboExistinDB(user string, date string) error
 	// Close() error
 	// UpdateUser()
 }

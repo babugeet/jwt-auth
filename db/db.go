@@ -436,9 +436,9 @@ func (m *Mydb) WriteTarget2DB(username string, workoutplan *models.Workoutplan) 
 	return nil
 }
 
-func (m *Mydb) GetUserWorkoutDetails4mDB(user string) models.Workoutplan {
+func (m *Mydb) GetUserWorkoutDetails4mDB(user string, date string) models.Workoutplan {
 	var details models.Workoutplan
-	if err := m.db.Table(Workoutplans_table).Select("*").Where("username = ?", user).Where("date = ?", variables.Today).Scan(&details).Error; err != nil {
+	if err := m.db.Table(Workoutplans_table).Select("*").Where("username = ?", user).Where("date = ?", date).Scan(&details).Error; err != nil {
 		fmt.Println("Error querying record:", err)
 	} else {
 		fmt.Printf("Recieved details  %d\n", details)
@@ -446,7 +446,7 @@ func (m *Mydb) GetUserWorkoutDetails4mDB(user string) models.Workoutplan {
 	return details
 }
 
-func (m *Mydb) GetUserWorkoutDetails42day4mDB(user string, cardio []byte, workout []byte) models.Workouttodaylist {
+func (m *Mydb) GetUserWorkoutDetails42day4mDB(user string, cardio []byte, workout []byte, date string) models.Workouttodaylist {
 	var cardiomap map[string]interface{}
 	var workoutmap map[string]interface{}
 	workouttoday := []models.Workouttoday{}
@@ -469,7 +469,7 @@ func (m *Mydb) GetUserWorkoutDetails42day4mDB(user string, cardio []byte, workou
 	// Iterate through the cardio map to populate workouttoday
 	for key, value := range cardiomap {
 		var details int
-		if err := m.db.Table(Workoutplans_table).Select(key+"done").Where("username = ?", user).Where("date = ?", variables.Today).Scan(&details).Error; err != nil {
+		if err := m.db.Table(Workoutplans_table).Select(key+"done").Where("username = ?", user).Where("date = ?", date).Find(&details).Error; err != nil {
 			fmt.Println("Error querying record:", err)
 		} else {
 			fmt.Printf("Received details for cardio: %d\n", details)
@@ -494,8 +494,9 @@ func (m *Mydb) GetUserWorkoutDetails42day4mDB(user string, cardio []byte, workou
 	// Iterate through the workout map to populate workouttoday
 	for key, value := range workoutmap {
 		var details int
-		if err := m.db.Table(Workoutplans_table).Select(key+"done").Where("username = ?", user).Where("date = ?", variables.Today).Scan(&details).Error; err != nil {
+		if err := m.db.Table(Workoutplans_table).Select(key+"done").Where("username = ?", user).Where("date = ?", date).Find(&details).Error; err != nil {
 			fmt.Println("Error querying record:", err)
+			return models.Workouttodaylist{}
 		} else {
 			fmt.Printf("Received details for workout: %d\n", details)
 		}
@@ -524,6 +525,28 @@ func (m *Mydb) GetUserWorkoutDetails42day4mDB(user string, cardio []byte, workou
 	fmt.Println("Final content of the list:")
 	fmt.Println(workoutList)
 	return workoutList
+}
+func (m *Mydb) CheckUserDateComboExistinDB(user string, date string) error {
+	var count int64
+
+	err := m.db.Table(Workoutplans_table).
+		Where("username = ?", user).
+		Where("date = ?", date).
+		Count(&count).Error
+
+	if err != nil {
+		fmt.Println("Error querying the database:", err)
+		return err // Handle the error appropriately
+	}
+
+	if count > 0 {
+		fmt.Println("Record exists for the specified username and date.")
+		return nil
+	} else {
+		fmt.Println("No record found for the specified username and date.")
+		return fmt.Errorf("Record not found")
+	}
+	return nil
 }
 
 // var workoutable models.Workoutplan
