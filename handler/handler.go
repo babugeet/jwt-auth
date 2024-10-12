@@ -670,7 +670,8 @@ func GetUserDailyData(db models.Database) func(w http.ResponseWriter, r *http.Re
 		} else {
 			http.Error(w, "Invalid request", http.StatusBadRequest)
 		}
-		details := db.GetUserWorkoutDetails4mDB(id)
+		date := variables.Today
+		details := db.GetUserWorkoutDetails4mDB(id, date)
 		// err = db.WriteTarget2DB(id, &userinput)
 		// _, ok := utils.Struct2Map()[user.Username]
 		// ok, User := db.GetUser(id)
@@ -750,7 +751,23 @@ func GetUserDailyDataTargetData(db models.Database) func(w http.ResponseWriter, 
 		workout, cardio := CreateWorkoutCardioResponse(db, User)
 		fmt.Println(string(workout))
 		fmt.Println(string(cardio))
-		details := db.GetUserWorkoutDetails42day4mDB(id, cardio, workout)
+		date := variables.Today
+		err = db.CheckUserDateComboExistinDB(id, date)
+		if err != nil {
+			// w.WriteHeader(http.StatusConflict)
+
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		details := db.GetUserWorkoutDetails42day4mDB(id, cardio, workout, date)
+		if err != nil {
+			// w.WriteHeader(http.StatusConflict)
+
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(err.Error()))
+			return
+		}
 		// if err != nil {
 		// 	// w.WriteHeader(http.StatusConflict)
 
@@ -758,6 +775,159 @@ func GetUserDailyDataTargetData(db models.Database) func(w http.ResponseWriter, 
 		// 	w.Write([]byte(err.Error()))
 		// 	return
 		// }
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Println("##")
+		// fmt.Println(User)
+		json.NewEncoder(w).Encode(details)
+		// db.AddUser(user)
+		// mocks.Users = append(mocks.Users, user)
+		// w.Write([]byte("Query completed successfully"))
+	}
+}
+
+func GetUserDailyDataTargetDatabyDate(db models.Database) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println(r)
+		fmt.Println("reached get daily data")
+
+		var userinput models.Workoutplan
+		fmt.Println("Recieved user input is ", r.Body)
+		err := json.NewDecoder(r.Body).Decode(&userinput)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		path := r.URL.Path
+		// Split the path into parts
+		parts := strings.Split(path, "/")
+
+		var id, date string
+		// Check if the correct number of parts is present
+		if len(parts) == 4 {
+			id = parts[2] // "123" (the third part)
+			date = parts[3]
+			// fmt.Fprintf(w, "User ID: %s", id)
+		} else {
+			http.Error(w, "Invalid request", http.StatusBadRequest)
+		}
+		// dateString := "2024-10-11" // Example date string
+
+		// Define the layout for the expected date format
+		layout := "2006-01-02"
+
+		// Try to parse the date
+		if _, err := time.Parse(layout, date); err == nil {
+			fmt.Println("The date is in the correct format:", date)
+		} else {
+			fmt.Println("The date is NOT in the correct format:", date)
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		// err = db.WriteTarget2DB(id, &userinput)
+		// _, ok := utils.Struct2Map()[user.Username]
+		_, User := db.GetUser(id)
+		workout, cardio := CreateWorkoutCardioResponse(db, User)
+		fmt.Println(string(workout))
+		fmt.Println(string(cardio))
+		err = db.CheckUserDateComboExistinDB(id, date)
+		if err != nil {
+			// w.WriteHeader(http.StatusConflict)
+
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		details := db.GetUserWorkoutDetails42day4mDB(id, cardio, workout, date)
+
+		// if err != nil {
+		// 	// w.WriteHeader(http.StatusConflict)
+
+		// 	w.WriteHeader(http.StatusNotFound)
+		// 	w.Write([]byte(err.Error()))
+		// 	return
+		// }
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Println("##")
+		// fmt.Println(User)
+		json.NewEncoder(w).Encode(details)
+		// db.AddUser(user)
+		// mocks.Users = append(mocks.Users, user)
+		// w.Write([]byte("Query completed successfully"))
+	}
+}
+
+func GetUserDailyDatabyDate(db models.Database) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println(r)
+		// fmt.Println("reached GetUserById")
+		// authHeader := r.Header.Get("Authorization")
+		// if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+		// 	w.WriteHeader(http.StatusUnauthorized)
+		// 	return
+		// }
+		// tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+
+		// claims := &utils.Claims{}
+		// tkn, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
+		// 	return jwtKey, nil
+		// })
+		// if err != nil || !tkn.Valid {
+		// 	w.WriteHeader(http.StatusUnauthorized)
+		// 	return
+		// }
+		var userinput models.Workoutplan
+		fmt.Println("Recieved user input is ", r.Body)
+		err := json.NewDecoder(r.Body).Decode(&userinput)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		path := r.URL.Path
+		// Split the path into parts
+		parts := strings.Split(path, "/")
+
+		var id, date string
+		// Check if the correct number of parts is present
+		if len(parts) == 4 {
+			id = parts[2] // "123" (the third part)
+			date = parts[3]
+			// fmt.Fprintf(w, "User ID: %s", id)
+		} else {
+			http.Error(w, "Invalid request", http.StatusBadRequest)
+		}
+		layout := "2006-01-02"
+
+		// Try to parse the date
+		if _, err := time.Parse(layout, date); err == nil {
+			fmt.Println("The date is in the correct format:", date)
+		} else {
+			fmt.Println("The date is NOT in the correct format:", date)
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		err = db.CheckUserDateComboExistinDB(id, date)
+		if err != nil {
+			// w.WriteHeader(http.StatusConflict)
+
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		details := db.GetUserWorkoutDetails4mDB(id, date)
+		// err = db.WriteTarget2DB(id, &userinput)
+		// _, ok := utils.Struct2Map()[user.Username]
+		// ok, User := db.GetUser(id)
+		if err != nil {
+			// w.WriteHeader(http.StatusConflict)
+
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fmt.Println("##")
