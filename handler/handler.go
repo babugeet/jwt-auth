@@ -694,7 +694,7 @@ func GetUserDailyData(db models.Database) func(w http.ResponseWriter, r *http.Re
 }
 
 func CreateWorkoutCardioResponse(db models.Database, User models.User) ([]byte, []byte) {
-
+	fmt.Println("reached here 123")
 	bmiID, ageID := LinkAgeBMIid(User.BMI, User.Age)
 	fmt.Println(bmiID, ageID)
 	workout, cardio := db.GetUserWorkOutCardioPlanfromDB(bmiID, ageID)
@@ -749,6 +749,7 @@ func GetUserDailyDataTargetData(db models.Database) func(w http.ResponseWriter, 
 		// _, ok := utils.Struct2Map()[user.Username]
 		_, User := db.GetUser(id)
 		workout, cardio := CreateWorkoutCardioResponse(db, User)
+		fmt.Println("this is where i am")
 		fmt.Println(string(workout))
 		fmt.Println(string(cardio))
 		date := variables.Today

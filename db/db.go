@@ -221,7 +221,7 @@ func (m *Mydb) GetUserWorkOutCardioPlanfromDB(bodyTypeID int, ageGroupID int) ([
 	var plan Workout
 	// bodyTypeID := 1 // Example BodyTypeID
 	// ageGroupID := 2 // Example AgeGroupID
-
+	fmt.Println(bodyTypeID, ageGroupID)
 	result := m.db.Where("body_type_id = ? AND age_group_id = ?", bodyTypeID, ageGroupID).Find(&plan)
 	if result.Error != nil {
 		fmt.Printf("Error fetching exercise plan: %v", result.Error)
