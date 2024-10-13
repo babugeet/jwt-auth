@@ -185,5 +185,5 @@ func (ExerciseData) TableName() string {
 var exercises = []ExerciseData{
 	{ID: 1, Age: 1, Running: "3000 m", Cycling: "5000 m", Swimming: "300 m", Walking: "5000 m", Squats: "40 reps", Deadlift: "50 reps", Pushups: "40 reps", Pullups: "15 reps", Jumpingjacks: "40 reps", Weightlift: "50 kg", Benchpress: "50 kg", Lunges: "40 reps", Legpress: "30 kg"},
 	{ID: 2, Age: 2, Running: "2000 m ", Cycling: "3000 m", Swimming: "200 m", Walking: "3000 m", Squats: "20 reps", Deadlift: "25 reps", Pushups: "10 reps", Pullups: "10 reps", Jumpingjacks: "20 reps", Weightlift: "30 kg", Benchpress: "30 kg", Lunges: "25 reps", Legpress: "20 kg"},
-	{ID: 3, Age: 3, Running: "1000 m", Cycling: "1000 m", Swimming: "100 m", Walking: "1500 m", Squats: "0 reps", Deadlift: "0 reps", Pushups: "0 reps", Pullups: "0 reps", Jumpingjacks: "0 reps", Weightlift: "20 kg", Benchpress: "20 kg", Lunges: "15 reps", Legpress: "20 kg"},
+	{ID: 3, Age: 3, Running: "1000 m", Cycling: "1000 m", Swimming: "100 m", Walking: "1500 m", Squats: "10 reps", Deadlift: "10 reps", Pushups: "10 reps", Pullups: "10 reps", Jumpingjacks: "10 reps", Weightlift: "20 kg", Benchpress: "20 kg", Lunges: "15 reps", Legpress: "20 kg"},
 }
